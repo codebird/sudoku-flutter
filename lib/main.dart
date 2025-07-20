@@ -164,6 +164,10 @@ class _MyHomePageState extends State<MyHomePage> {
       oneSec,
       (Timer timer) {
         setState(() {
+          if (remainingHiddenNumbers.isEmpty) {
+            _timer.cancel();
+            return;
+          }
           timePassed++;
           if (timePassed < 60) {
             timePassedSeconds = timePassed;
@@ -243,7 +247,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Text(
-                  "remaining: ${remainingHiddenNumbers.length}",
+                  timePassed > 0
+                      ? remainingHiddenNumbers.isEmpty
+                          ? " You won "
+                          : "remaining: ${remainingHiddenNumbers.length}"
+                      : " ",
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: Colors.black,
@@ -254,9 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Text(
-                  remainingHiddenNumbers.isEmpty
-                      ? "You won"
-                      : "${timePassedHours.toString().padLeft(2, '0')}:${timePassedMinutes.toString().padLeft(2, '0')}:${timePassedSeconds.toString().padLeft(2, '0')}",
+                  "${timePassedHours.toString().padLeft(2, '0')}:${timePassedMinutes.toString().padLeft(2, '0')}:${timePassedSeconds.toString().padLeft(2, '0')}",
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: Colors.black,
