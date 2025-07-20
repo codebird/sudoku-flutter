@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int mistakes = 0;
   int chosenNumber = 0;
   bool draftMode = false;
-  void resetGrid() {
+  void newGrid() {
     setState(() {
       hiddenNumbers = {};
       drafts = {};
@@ -141,6 +141,20 @@ class _MyHomePageState extends State<MyHomePage> {
       solutionMatrix = List.generate(9, (_) => List.filled(9, 0));
       mistakes = 0;
       generateGrid();
+    });
+  }
+
+  void resetGrid() {
+    setState(() {
+      chosenNumber = 0;
+      remainingHiddenNumbers = Map.of(hiddenNumbers);
+      drafts = {};
+      draftMode = false;
+      solutionMatrix = [];
+      for (var list in mainMatrix) {
+        solutionMatrix.add(List.of(list));
+      }
+      mistakes = 0;
     });
   }
 
@@ -161,6 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -220,48 +235,35 @@ class _MyHomePageState extends State<MyHomePage> {
                       Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: chosenNumber != 0 &&
+                                  solutionMatrix[j][i] == chosenNumber
+                              ? Colors.green
+                              : Colors.white,
                           border: Border(
                             // Conditionally set the border thickness
                             top: BorderSide(
-                                color: (i == currentPosCol &&
-                                            j == currentPosRow &&
-                                            chosenNumber == 0) ||
-                                        (chosenNumber != 0 &&
-                                            solutionMatrix[j][i] ==
-                                                chosenNumber)
-                                    ? Colors.blue
-                                    : Colors.black,
+                                color:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? Colors.blue
+                                        : Colors.black,
                                 width: j > 0 && j % 3 == 0 ? 1.5 : 1),
                             right: BorderSide(
-                                color: (i == currentPosCol &&
-                                            j == currentPosRow &&
-                                            chosenNumber == 0) ||
-                                        (chosenNumber != 0 &&
-                                            solutionMatrix[j][i] ==
-                                                chosenNumber)
-                                    ? Colors.blue
-                                    : Colors.black,
+                                color:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? Colors.blue
+                                        : Colors.black,
                                 width: i > 0 && i % 3 == 2 ? 1.5 : 1),
                             bottom: BorderSide(
-                                color: (i == currentPosCol &&
-                                            j == currentPosRow &&
-                                            chosenNumber == 0) ||
-                                        (chosenNumber != 0 &&
-                                            solutionMatrix[j][i] ==
-                                                chosenNumber)
-                                    ? Colors.blue
-                                    : Colors.black,
+                                color:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? Colors.blue
+                                        : Colors.black,
                                 width: j < 8 && j % 3 == 2 ? 1.5 : 1),
                             left: BorderSide(
-                                color: (i == currentPosCol &&
-                                            j == currentPosRow &&
-                                            chosenNumber == 0) ||
-                                        (chosenNumber != 0 &&
-                                            solutionMatrix[j][i] ==
-                                                chosenNumber)
-                                    ? Colors.blue
-                                    : Colors.black,
+                                color:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? Colors.blue
+                                        : Colors.black,
                                 width: i < 8 && i % 3 == 0 ? 1.5 : 1),
                           ),
                         ),
@@ -273,7 +275,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   setState(() {
                                     currentPosCol = i;
                                     currentPosRow = j;
-                                    chosenNumber = 0;
+                                    if (solutionMatrix[j][i] == 0) {
+                                      chosenNumber = 0;
+                                    } else {
+                                      chosenNumber = solutionMatrix[j][i];
+                                    }
                                   });
                                 },
                                 child: solutionMatrix[j][i] == 0
@@ -362,6 +368,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         } else {
                           if (solutionMatrix[currentPosRow][currentPosCol] ==
                               j) {
+                            chosenNumber = 0;
                             solutionMatrix[currentPosRow][currentPosCol] = 0;
                             if (hiddenNumbers.containsKey(
                                 "r${currentPosRow}_c$currentPosCol")) {
@@ -374,6 +381,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   [currentPosCol] ==
                               0) {
                             solutionMatrix[currentPosRow][currentPosCol] = j;
+                            chosenNumber = j;
                             if (!checkIfGoodNumber(
                                 j, currentPosRow, currentPosCol)) {
                               mistakes += 1;
@@ -457,9 +465,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: resetGrid,
-        child: const Icon(Icons.refresh),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+            child: FloatingActionButton(
+              onPressed: resetGrid,
+              child: const Icon(Icons.refresh),
+            ),
+          ),
+          FloatingActionButton(
+            onPressed: newGrid,
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
