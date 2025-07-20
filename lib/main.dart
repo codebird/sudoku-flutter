@@ -1,9 +1,6 @@
-import 'dart:ffi';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:math';
-
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 
@@ -131,6 +128,18 @@ class _MyHomePageState extends State<MyHomePage> {
   int mistakes = 0;
   int chosenNumber = 0;
   bool draftMode = false;
+  int timePassed = 0;
+  int timePassedMinutes = 0;
+  int timePassedHours = 0;
+  int timePassedSeconds = 0;
+  late Timer _timer;
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
   void newGrid() {
     setState(() {
       hiddenNumbers = {};
@@ -141,7 +150,38 @@ class _MyHomePageState extends State<MyHomePage> {
       solutionMatrix = List.generate(9, (_) => List.filled(9, 0));
       mistakes = 0;
       generateGrid();
+      if (timePassed > 0) {
+        _timer.cancel();
+      }
+      timePassed = 0;
+      startTimer();
     });
+  }
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        setState(() {
+          timePassed++;
+          if (timePassed < 60) {
+            timePassedSeconds = timePassed;
+            timePassedMinutes = 0;
+            timePassedHours = 0;
+          } else if (timePassed < 3600) {
+            timePassedMinutes = (timePassed / 60).floor();
+            timePassedHours = 0;
+            timePassedSeconds = timePassed % 60;
+          } else {
+            timePassedMinutes = (timePassed / 60).floor();
+            timePassedHours = (timePassedMinutes / 60).floor();
+            timePassedMinutes = timePassedMinutes % 60;
+            timePassedSeconds = timePassed % 60;
+          }
+        });
+      },
+    );
   }
 
   void resetGrid() {
@@ -155,6 +195,9 @@ class _MyHomePageState extends State<MyHomePage> {
         solutionMatrix.add(List.of(list));
       }
       mistakes = 0;
+      timePassed = 0;
+      _timer.cancel();
+      startTimer();
     });
   }
 
@@ -211,7 +254,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Text(
-                  remainingHiddenNumbers.isEmpty ? "You won" : " Go on ",
+                  remainingHiddenNumbers.isEmpty
+                      ? "You won"
+                      : "${timePassedHours.toString().padLeft(2, '0')}:${timePassedMinutes.toString().padLeft(2, '0')}:${timePassedSeconds.toString().padLeft(2, '0')}",
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: Colors.black,
