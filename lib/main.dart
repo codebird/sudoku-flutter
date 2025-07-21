@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
+//import 'package:localstorage/localstorage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -117,20 +119,36 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  List<List<int>> mainMatrix = List.generate(9, (_) => List.filled(9, 0));
+  List<List<int>> mainMatrix = List.generate(9,
+      (_) => List.filled(9, 0)); // localStorage.getItem('main_matrix') != null
+  //? jsonDecode(localStorage.getItem("main_matrix")!)
+  //: List.generate(9, (_) => List.filled(9, 0));
   List<List<int>> solutionMatrix = List.generate(9, (_) => List.filled(9, 0));
+  //localStorage.getItem('solution_matrix') != null
+  //     ? jsonDecode(localStorage.getItem("solution_matrix")!)
+  //    : List.generate(9, (_) => List.filled(9, 0));
   Map<String, int> hiddenNumbers = {};
-  Map<String, List<int>> drafts = {};
+  //localStorage.getItem('hidden_numbers') != null
+  //    ? jsonDecode(localStorage.getItem("hidden_numbers")!)
+  //    : {};
+  Map<String, List<int>> drafts = {}; //localStorage.getItem('drafts') != null
+  //? jsonDecode(localStorage.getItem("drafts")!)
+  //: {};
   Map<String, int> remainingHiddenNumbers = {};
+  //localStorage.getItem('remaining_hidden_numbers') != null
+  //    ? jsonDecode(localStorage.getItem("remaining_hidden_numbers")!)
+  //    : {};
 
   int currentPosRow = 0;
   int currentPosCol = 0;
   int mistakes = 0;
   int chosenNumber = 0;
   bool draftMode = false;
-  int timePassed = 0;
-  int timePassedMinutes = 0;
+  int timePassed = 0; //localStorage.getItem('time_passed') != null
+  //? int.parse(localStorage.getItem("time_passed")!)
+  //: 0;
   int timePassedHours = 0;
+  int timePassedMinutes = 0;
   int timePassedSeconds = 0;
   late Timer _timer;
 
@@ -154,6 +172,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _timer.cancel();
       }
       timePassed = 0;
+      //localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
+      //localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
+      //localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
+      //localStorage.setItem(
+      //    "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
       startTimer();
     });
   }
@@ -183,6 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
             timePassedMinutes = timePassedMinutes % 60;
             timePassedSeconds = timePassed % 60;
           }
+          //localStorage.setItem("time_passed", timePassed.toString());
         });
       },
     );
@@ -202,6 +226,11 @@ class _MyHomePageState extends State<MyHomePage> {
       timePassed = 0;
       _timer.cancel();
       startTimer();
+      //localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
+      //localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
+      //localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
+      //localStorage.setItem(
+      //    "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
     });
   }
 
@@ -416,6 +445,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           } else {
                             drafts["r${currentPosRow}_c$currentPosCol"] = [j];
                           }
+                          //localStorage.setItem("drafts", jsonEncode(drafts));
                         } else {
                           if (solutionMatrix[currentPosRow][currentPosCol] ==
                               j) {
@@ -443,6 +473,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                   .remove("r${currentPosRow}_c$currentPosCol");
                             }
                           }
+                          //localStorage.setItem(
+                          //   "solution_matrix", jsonEncode(solutionMatrix));
+                          // localStorage.setItem("remaining_hidden_numbers",
+                          //  jsonEncode(remainingHiddenNumbers));
                         }
                       });
                     },
