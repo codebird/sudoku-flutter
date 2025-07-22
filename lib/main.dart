@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
-//import 'package:localstorage/localstorage.dart';
+import 'package:localstorage/localstorage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initLocalStorage();
   runApp(const MyApp());
 }
 
@@ -36,7 +38,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool checkIfGoodNumber(number, row, column) {
+  List<List<int>> decodeLocalStorageList(String value) {
+    Iterable l = json.decode(value);
+    List<List<int>> result = List<List<int>>.from(
+        l.map((internalList) => List<int>.from(internalList)));
+    return result;
+  }
+
+  Map<String, int> decodeLocalStorageMap(String value) {
+    Map<String, int> result = Map.castFrom(json.decode(value));
+    return result;
+  }
+
+  Map<String, List<int>> decodeLocalStorageDrafts(String value) {
+    Map<String, List<dynamic>> firstDecode = Map.castFrom(json.decode(value));
+    Map<String, List<int>> result = {};
+    firstDecode.forEach((k, v) => result[k] = List<int>.from(v));
+    return result;
+  }
+
+  bool checkIfGoodNumber(int number, int row, int column) {
     if (hiddenNumbers.containsKey("r${row}_c$column")) {
       if (number != hiddenNumbers["r${row}_c$column"]) {
         return false;
@@ -119,34 +140,18 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  List<List<int>> mainMatrix = List.generate(9,
-      (_) => List.filled(9, 0)); // localStorage.getItem('main_matrix') != null
-  //? jsonDecode(localStorage.getItem("main_matrix")!)
-  //: List.generate(9, (_) => List.filled(9, 0));
+  List<List<int>> mainMatrix = List.generate(9, (_) => List.filled(9, 0));
   List<List<int>> solutionMatrix = List.generate(9, (_) => List.filled(9, 0));
-  //localStorage.getItem('solution_matrix') != null
-  //     ? jsonDecode(localStorage.getItem("solution_matrix")!)
-  //    : List.generate(9, (_) => List.filled(9, 0));
   Map<String, int> hiddenNumbers = {};
-  //localStorage.getItem('hidden_numbers') != null
-  //    ? jsonDecode(localStorage.getItem("hidden_numbers")!)
-  //    : {};
-  Map<String, List<int>> drafts = {}; //localStorage.getItem('drafts') != null
-  //? jsonDecode(localStorage.getItem("drafts")!)
-  //: {};
+  Map<String, List<int>> drafts = {};
   Map<String, int> remainingHiddenNumbers = {};
-  //localStorage.getItem('remaining_hidden_numbers') != null
-  //    ? jsonDecode(localStorage.getItem("remaining_hidden_numbers")!)
-  //    : {};
 
   int currentPosRow = 0;
   int currentPosCol = 0;
   int mistakes = 0;
   int chosenNumber = 0;
   bool draftMode = false;
-  int timePassed = 0; //localStorage.getItem('time_passed') != null
-  //? int.parse(localStorage.getItem("time_passed")!)
-  //: 0;
+  int timePassed = 0;
   int timePassedHours = 0;
   int timePassedMinutes = 0;
   int timePassedSeconds = 0;
@@ -172,11 +177,11 @@ class _MyHomePageState extends State<MyHomePage> {
         _timer.cancel();
       }
       timePassed = 0;
-      //localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
-      //localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
-      //localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
-      //localStorage.setItem(
-      //    "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
+      localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
+      localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
+      localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
+      localStorage.setItem(
+          "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
       startTimer();
     });
   }
@@ -206,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
             timePassedMinutes = timePassedMinutes % 60;
             timePassedSeconds = timePassed % 60;
           }
-          //localStorage.setItem("time_passed", timePassed.toString());
+          localStorage.setItem("time_passed", timePassed.toString());
         });
       },
     );
@@ -226,12 +231,42 @@ class _MyHomePageState extends State<MyHomePage> {
       timePassed = 0;
       _timer.cancel();
       startTimer();
-      //localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
-      //localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
-      //localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
-      //localStorage.setItem(
-      //    "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
+      localStorage.setItem("main_matrix", jsonEncode(mainMatrix));
+      localStorage.setItem("solution_matrix", jsonEncode(solutionMatrix));
+      localStorage.setItem("hidden_numbers", jsonEncode(hiddenNumbers));
+      localStorage.setItem(
+          "remaining_hidden_numbers", jsonEncode(remainingHiddenNumbers));
     });
+  }
+
+  @override
+  void initState() {
+    if (localStorage.getItem('main_matrix') != null) {
+      mainMatrix = decodeLocalStorageList(localStorage.getItem('main_matrix')!);
+    }
+    if (localStorage.getItem('solution_matrix') != null) {
+      solutionMatrix =
+          decodeLocalStorageList(localStorage.getItem('solution_matrix')!);
+    }
+    if (localStorage.getItem('hidden_numbers') != null) {
+      hiddenNumbers =
+          decodeLocalStorageMap(localStorage.getItem('hidden_numbers')!);
+    }
+    if (localStorage.getItem('remaining_hidden_numbers') != null) {
+      remainingHiddenNumbers = decodeLocalStorageMap(
+          localStorage.getItem('remaining_hidden_numbers')!);
+    }
+    if (localStorage.getItem("time_passed") != null) {
+      timePassed = int.parse(localStorage.getItem("time_passed")!);
+      startTimer();
+    }
+    if (localStorage.getItem("mistakes") != null) {
+      mistakes = int.parse(localStorage.getItem("mistakes")!);
+    }
+    if (localStorage.getItem('drafts') != null) {
+      drafts = decodeLocalStorageDrafts(localStorage.getItem('drafts')!);
+    }
+    super.initState();
   }
 
   void toggleDraftMode() {
@@ -325,26 +360,46 @@ class _MyHomePageState extends State<MyHomePage> {
                                 color:
                                     (i == currentPosCol && j == currentPosRow)
                                         ? Colors.blue
-                                        : Colors.black,
-                                width: j > 0 && j % 3 == 0 ? 1.5 : 1),
+                                        : j > 0 && j % 3 == 0
+                                            ? Colors.black
+                                            : Colors.grey,
+                                width:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? 1
+                                        : .5),
                             right: BorderSide(
                                 color:
                                     (i == currentPosCol && j == currentPosRow)
                                         ? Colors.blue
-                                        : Colors.black,
-                                width: i > 0 && i % 3 == 2 ? 1.5 : 1),
+                                        : i > 0 && i % 3 == 2
+                                            ? Colors.black
+                                            : Colors.grey,
+                                width:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? 1
+                                        : .5),
                             bottom: BorderSide(
                                 color:
                                     (i == currentPosCol && j == currentPosRow)
                                         ? Colors.blue
-                                        : Colors.black,
-                                width: j < 8 && j % 3 == 2 ? 1.5 : 1),
+                                        : j < 8 && j % 3 == 2
+                                            ? Colors.black
+                                            : Colors.grey,
+                                width:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? 1
+                                        : .5),
                             left: BorderSide(
                                 color:
                                     (i == currentPosCol && j == currentPosRow)
                                         ? Colors.blue
-                                        : Colors.black,
-                                width: i < 8 && i % 3 == 0 ? 1.5 : 1),
+                                        : i < 8 && i % 3 == 0
+                                            ? Colors.black
+                                            : Colors.grey,
+                                width:
+                                    (i == currentPosCol && j == currentPosRow)
+                                        ? 1
+                                        : .5),
                           ),
                         ),
                         // Substitute text with text entry or
@@ -397,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   MediaQuery.of(context)
                                                       .size
                                                       .height) /
-                                              25,
+                                              20,
                                         ),
                                       ),
                               )
@@ -416,7 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             MediaQuery.of(context)
                                                 .size
                                                 .height) /
-                                        25,
+                                        20,
                                   ),
                                 ),
                               ),
@@ -445,7 +500,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           } else {
                             drafts["r${currentPosRow}_c$currentPosCol"] = [j];
                           }
-                          //localStorage.setItem("drafts", jsonEncode(drafts));
+                          localStorage.setItem("drafts", jsonEncode(drafts));
                         } else {
                           if (solutionMatrix[currentPosRow][currentPosCol] ==
                               j) {
@@ -465,7 +520,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             chosenNumber = j;
                             if (!checkIfGoodNumber(
                                 j, currentPosRow, currentPosCol)) {
-                              mistakes += 1;
+                              mistakes++;
                             } else {
                               drafts
                                   .remove("r${currentPosRow}_c$currentPosCol");
@@ -473,10 +528,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   .remove("r${currentPosRow}_c$currentPosCol");
                             }
                           }
-                          //localStorage.setItem(
-                          //   "solution_matrix", jsonEncode(solutionMatrix));
-                          // localStorage.setItem("remaining_hidden_numbers",
-                          //  jsonEncode(remainingHiddenNumbers));
+                          localStorage.setItem(
+                              "solution_matrix", jsonEncode(solutionMatrix));
+                          localStorage.setItem("remaining_hidden_numbers",
+                              jsonEncode(remainingHiddenNumbers));
+                          localStorage.setItem("mistakes", mistakes.toString());
                         }
                       });
                     },
