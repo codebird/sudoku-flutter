@@ -603,10 +603,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 toggleDraftMode();
               },
-              child: Icon(
-                Icons.create_sharp,
-                size: MediaQuery.of(context).size.width / 12,
-              ),
+              child: const Icon(Icons.create_sharp),
             ),
           ),
           Padding(
