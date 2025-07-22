@@ -452,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   MediaQuery.of(context)
                                                       .size
                                                       .height) /
-                                              20,
+                                              12,
                                         ),
                                       ),
                               )
@@ -471,7 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             MediaQuery.of(context)
                                                 .size
                                                 .height) /
-                                        20,
+                                        12,
                                   ),
                                 ),
                               ),
@@ -482,7 +482,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(children: [
               for (var j = 1; j <= 9; j++)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(1.5, 10, 1.5, 0),
+                  padding: const EdgeInsets.fromLTRB(1, 10, 1, 0),
                   child: InkWell(
                     onTap: () {
                       setState(() {
@@ -537,8 +537,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       });
                     },
                     child: Container(
-                      width: MediaQuery.of(context).size.width / 11,
-                      height: 37,
+                      width: MediaQuery.of(context).size.width / 9.5,
+                      height: MediaQuery.of(context).size.width / 9.5,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(0),
                         border: const Border(
@@ -548,7 +548,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           bottom: BorderSide(color: Colors.black, width: 1),
                           left: BorderSide(
                             color: Colors.black,
-                            width: 2,
+                            width: 1,
                           ),
                         ),
                       ),
@@ -582,7 +582,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               // Responsive text size
                               fontSize: min(MediaQuery.of(context).size.width,
                                       MediaQuery.of(context).size.height) /
-                                  30,
+                                  25,
                             ),
                           ),
                         ],
@@ -590,18 +590,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(1.5, 10, 1.5, 0),
-                child: InkWell(
-                  onTap: () {
-                    toggleDraftMode();
-                  },
-                  child: Icon(
-                    Icons.create_sharp,
-                    size: MediaQuery.of(context).size.width / 12,
-                  ),
-                ),
-              ),
             ]),
           ],
         ),
@@ -609,6 +597,18 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+            child: FloatingActionButton(
+              onPressed: () {
+                toggleDraftMode();
+              },
+              child: Icon(
+                Icons.create_sharp,
+                size: MediaQuery.of(context).size.width / 12,
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
             child: FloatingActionButton(
