@@ -365,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             : Colors.grey,
                                 width:
                                     (i == currentPosCol && j == currentPosRow)
-                                        ? 1
+                                        ? 2
                                         : .5),
                             right: BorderSide(
                                 color:
@@ -376,7 +376,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             : Colors.grey,
                                 width:
                                     (i == currentPosCol && j == currentPosRow)
-                                        ? 1
+                                        ? 2
                                         : .5),
                             bottom: BorderSide(
                                 color:
@@ -387,7 +387,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             : Colors.grey,
                                 width:
                                     (i == currentPosCol && j == currentPosRow)
-                                        ? 1
+                                        ? 2
                                         : .5),
                             left: BorderSide(
                                 color:
@@ -398,7 +398,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             : Colors.grey,
                                 width:
                                     (i == currentPosCol && j == currentPosRow)
-                                        ? 1
+                                        ? 2
                                         : .5),
                           ),
                         ),
@@ -493,6 +493,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 .contains(j)) {
                               drafts["r${currentPosRow}_c$currentPosCol"]!
                                   .add(j);
+                              drafts["r${currentPosRow}_c$currentPosCol"]!
+                                  .sort();
                             } else {
                               drafts["r${currentPosRow}_c$currentPosCol"]!
                                   .remove(j);
