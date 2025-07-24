@@ -155,6 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int timePassedHours = 0;
   int timePassedMinutes = 0;
   int timePassedSeconds = 0;
+  bool gamePaused = false;
   late Timer _timer;
 
   @override
@@ -267,6 +268,21 @@ class _MyHomePageState extends State<MyHomePage> {
       drafts = decodeLocalStorageDrafts(localStorage.getItem('drafts')!);
     }
     super.initState();
+  }
+
+  void pauseGame() {
+    if (!gamePaused && timePassed != 0) {
+      _timer.cancel();
+      setState(() {
+        gamePaused = true;
+        chosenNumber = 0;
+      });
+    } else {
+      setState(() {
+        gamePaused = false;
+      });
+      startTimer();
+    }
   }
 
   void toggleDraftMode() {
@@ -420,7 +436,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: solutionMatrix[j][i] == 0
                                     ? drafts.containsKey("r${j}_c$i")
                                         ? Text(
-                                            drafts["r${j}_c$i"].toString(),
+                                            gamePaused
+                                                ? ""
+                                                : drafts["r${j}_c$i"]
+                                                    .toString(),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: Colors.blueGrey,
@@ -437,12 +456,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                           )
                                         : Container()
                                     : Text(
-                                        solutionMatrix[j][i].toString(),
+                                        gamePaused
+                                            ? ""
+                                            : solutionMatrix[j][i].toString(),
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: checkIfGoodNumber(
                                                   solutionMatrix[j][i], j, i)
-                                              ? Colors.blue
+                                              ? solutionMatrix[j][i] ==
+                                                      chosenNumber
+                                                  ? Colors.yellowAccent
+                                                  : Colors.blue
                                               : Colors.red,
                                           // Responsive text size
                                           fontSize: min(
@@ -461,7 +485,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   changeChosenNumber(solutionMatrix[j][i]);
                                 },
                                 child: Text(
-                                  solutionMatrix[j][i].toString(),
+                                  gamePaused
+                                      ? ""
+                                      : solutionMatrix[j][i].toString(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.black,
@@ -599,6 +625,15 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+            child: FloatingActionButton(
+              onPressed: () {
+                pauseGame();
+              },
+              child: Icon(gamePaused ? Icons.play_arrow : Icons.pause),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
             child: FloatingActionButton(
