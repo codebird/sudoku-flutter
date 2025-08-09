@@ -58,5 +58,5 @@ Open a Pull Request
 Pull requests are very welcome — I will review and merge them as soon as possible.
 If you have ideas, bug fixes, or just want to polish the interface, feel free to open an issue or PR.
 
-📜 License
+## 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.
