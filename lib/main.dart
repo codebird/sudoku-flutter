@@ -294,6 +294,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void changeChosenNumber(int newOne) {
     setState(() {
       chosenNumber = newOne;
+      currentPosRow = -1;
+      currentPosCol = -1;
     });
   }
 
@@ -369,7 +371,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: chosenNumber != 0 &&
                                   solutionMatrix[j][i] == chosenNumber
                               ? Colors.green
-                              : Colors.white,
+                              : i == currentPosCol || j == currentPosRow
+                                  ? Colors.white24
+                                  : Colors.white,
                           border: Border(
                             // Conditionally set the border thickness
                             top: BorderSide(
